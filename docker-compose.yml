@@ -1,0 +1,49 @@
+services:
+  mongo:
+    container_name: empmgmt-mongo
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval \"db.adminCommand('ping')\" --quiet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    container_name: empmgmt-api
+    build: ./API
+    image: empmgmt-api:dev
+    restart: always
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./API:/app
+      - /app/node_modules
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/empmgmt
+      - JWT_SECRET=${JWT_SECRET}
+    command: npm run dev
+
+  ui:
+    container_name: empmgmt-ui
+    build: ./UI
+    image: empmgmt-ui:dev
+    restart: always
+    depends_on:
+      - api
+    volumes:
+      - ./UI:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    command: npm run dev
+
+volumes:
+  mongo-data:
