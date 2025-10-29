@@ -1,0 +1,6 @@
+.vscode
+API
+UI
+ UI KE ANDAR node_modules file ke andar pahle a se z tak ka extract krenge uske baad ui ka rar file.
+ .env file
+ docker-compose
